@@ -1,26 +1,17 @@
 #!/usr/bin/env python3
 """
-Pull every full-length video from the Upside Down Influencer YouTube channel
-and write it to data/episodes.json so the site can be rebuilt with zero
-manual work. YouTube Shorts and other short clips are filtered out by
-duration, so only real episodes show up on the site.
+Pull every live upcoming event from Eventbrite and write it to
+data/events.json so the Events page updates itself with zero manual work
+on the website side. Jessica manages events entirely in Eventbrite
+(create, edit, cancel, see who's signed up). This script just mirrors
+whatever's live there onto the website.
 
-Source of truth: YouTube Data API v3 (playlistItems on the channel's "uploads"
-playlist, then videos.list for each video's duration). This needs a free API
-key. See README.md for how to get one.
+Source of truth: Eventbrite API v3 (an organization's events, expanded
+with venue + description). Needs a free Eventbrite account + personal
+token. See README.md for how to get one.
 
 Usage:
-    YOUTUBE_API_KEY=xxxxx python3 scripts/fetch_episodes.py
-
-Env vars:
-    YOUTUBE_API_KEY          required. A YouTube Data API v3 key.
-    CHANNEL_ID                optional. Defaults to the Upside Down Influencer channel.
-    EPISODE_MIN_DURATION_SECONDS
-                               optional. Videos shorter than this are treated
-                               as Shorts/clips and excluded. Defaults to 180
-                               (3 minutes, YouTube's current max Shorts
-                               length, so this safely excludes every Short
-                               without risking cutting off a real episode).
+    EVENTBRITE_TOKEN=xxxx EVENTBRITE_ORG_ID=xxxx python3 scripts/fetch_events.py
 """
 import json
 import os
@@ -31,169 +22,159 @@ import urllib.parse
 import urllib.error
 from pathlib import Path
 
-API_BASE = "https://www.googleapis.com/youtube/v3"
-
-# @upsidedowninfluencer
-DEFAULT_CHANNEL_ID = "UCNNGiyZj4zeSSzVqwlv6PHQ"
-
-# YouTube Shorts can be up to 3 minutes (180s) as of the current Shorts spec.
-# Anything shorter than this is a Short or a repurposed clip, not an episode.
-DEFAULT_MIN_DURATION_SECONDS = 180
+API_BASE = "https://www.eventbriteapi.com/v3"
 
 ROOT = Path(__file__).resolve().parent.parent
-OUT_PATH = ROOT / "data" / "episodes.json"
-
-ISO8601_DURATION_RE = re.compile(
-    r"P(?:(?P<days>\d+)D)?"
-    r"T(?:(?P<hours>\d+)H)?(?:(?P<minutes>\d+)M)?(?:(?P<seconds>\d+)S)?"
-)
+OUT_PATH = ROOT / "data" / "events.json"
 
 
-def parse_duration_seconds(iso_duration: str) -> int:
-    """Parse an ISO 8601 duration like 'PT15M33S' into whole seconds."""
-    match = ISO8601_DURATION_RE.match(iso_duration or "")
-    if not match:
-        return 0
-    parts = match.groupdict()
-    days = int(parts["days"] or 0)
-    hours = int(parts["hours"] or 0)
-    minutes = int(parts["minutes"] or 0)
-    seconds = int(parts["seconds"] or 0)
-    return days * 86400 + hours * 3600 + minutes * 60 + seconds
-
-
-def chunked(items, size):
-    for i in range(0, len(items), size):
-        yield items[i:i + size]
-
-
-def uploads_playlist_id(channel_id: str) -> str:
-    """The 'uploads' playlist for any channel is its ID with UC -> UU."""
-    if channel_id.startswith("UC"):
-        return "UU" + channel_id[2:]
-    return channel_id
-
-
-def api_get(path: str, params: dict) -> dict:
-    url = f"{API_BASE}/{path}?{urllib.parse.urlencode(params)}"
+def api_get(path: str, token: str, params: dict | None = None) -> dict:
+    params = params or {}
+    url = f"{API_BASE}{path}?{urllib.parse.urlencode(params)}"
+    req = urllib.request.Request(url, headers={"Authorization": f"Bearer {token}"})
     try:
-        with urllib.request.urlopen(url, timeout=30) as resp:
+        with urllib.request.urlopen(req, timeout=30) as resp:
             return json.load(resp)
     except urllib.error.HTTPError as e:
         body = e.read().decode("utf-8", errors="replace")
-        print(f"YouTube API error {e.code} on {path}: {body}", file=sys.stderr)
+        print(f"Eventbrite API error {e.code} on {path}: {body}", file=sys.stderr)
         raise
 
 
-def best_thumbnail(thumbnails: dict) -> str:
-    for size in ("maxres", "standard", "high", "medium", "default"):
-        if size in thumbnails:
-            return thumbnails[size]["url"]
-    return ""
+def slugify(text: str, fallback: str) -> str:
+    slug = re.sub(r"[^a-z0-9]+", "-", text.lower()).strip("-")
+    return slug or fallback
 
 
-def fetch_all_episodes(api_key: str, channel_id: str) -> list:
-    playlist_id = uploads_playlist_id(channel_id)
-    episodes = []
-    page_token = None
+def human_date_range(start_iso: str, end_iso: str, timezone: str) -> str:
+    try:
+        from datetime import datetime
+        start = datetime.fromisoformat(start_iso)
+        end = datetime.fromisoformat(end_iso)
+        same_day = start.date() == end.date()
+        start_str = start.strftime("%B %-d, %Y · %-I:%M %p")
+        if same_day:
+            end_str = end.strftime("%-I:%M %p")
+        else:
+            end_str = end.strftime("%B %-d, %Y · %-I:%M %p")
+        return f"{start_str} – {end_str} ({timezone})"
+    except Exception:
+        return start_iso
+
+
+def fetch_events(token: str, org_id: str) -> list:
+    events = []
+    continuation = None
 
     while True:
         params = {
-            "part": "snippet,contentDetails",
-            "playlistId": playlist_id,
-            "maxResults": 50,
-            "key": api_key,
+            "status": "live",
+            "order_by": "start_asc",
+            "expand": "venue,description",
         }
-        if page_token:
-            params["pageToken"] = page_token
+        if continuation:
+            params["continuation"] = continuation
 
-        data = api_get("playlistItems", params)
+        data = api_get(f"/organizations/{org_id}/events/", token, params)
 
-        for item in data.get("items", []):
-            snippet = item["snippet"]
-            video_id = item["contentDetails"]["videoId"]
-            # Skip private/deleted videos (YouTube returns a placeholder title)
-            if snippet.get("title") in ("Private video", "Deleted video"):
-                continue
-            episodes.append({
-                "video_id": video_id,
-                "title": snippet.get("title", "").strip(),
-                "description": snippet.get("description", "").strip(),
-                "published_at": snippet.get("publishedAt", ""),
-                "thumbnail": best_thumbnail(snippet.get("thumbnails", {})),
-                "url": f"https://www.youtube.com/watch?v={video_id}",
-                "embed_url": f"https://www.youtube.com/embed/{video_id}",
+        for ev in data.get("events", []):
+            ev_id = ev["id"]
+            name = ev.get("name", {}).get("text", "").strip()
+            summary = ev.get("summary", "") or ev.get("description", {}).get("text", "") or ""
+            description_html = ""
+            # Full HTML description needs its own call
+            try:
+                desc_data = api_get(f"/events/{ev_id}/description/", token)
+                description_html = desc_data.get("description", "") or ""
+            except Exception:
+                description_html = f"<p>{summary}</p>"
+
+            venue = ev.get("venue") or {}
+            is_online = bool(ev.get("online_event"))
+            if is_online:
+                location_label = "Online"
+                address = ""
+            elif venue:
+                city = (venue.get("address") or {}).get("city", "")
+                region = (venue.get("address") or {}).get("region", "")
+                location_label = ", ".join(p for p in (city, region) if p) or "In person"
+                addr = venue.get("address") or {}
+                address = ", ".join(
+                    p for p in (
+                        addr.get("address_1"),
+                        addr.get("city"),
+                        addr.get("region"),
+                        addr.get("postal_code"),
+                    ) if p
+                )
+            else:
+                location_label = "In person"
+                address = ""
+
+            start = ev.get("start", {})
+            end = ev.get("end", {})
+            logo = ev.get("logo") or {}
+
+            events.append({
+                "id": ev_id,
+                "slug": slugify(name, ev_id),
+                "title": name,
+                "summary": summary.strip(),
+                "description_html": description_html,
+                "is_online": is_online,
+                "location_label": location_label,
+                "address": address,
+                "start_iso": start.get("utc", ""),
+                "end_iso": end.get("utc", ""),
+                "date_display": human_date_range(
+                    start.get("local", ""), end.get("local", ""),
+                    start.get("timezone", "")
+                ),
+                "image": logo.get("original", {}).get("url") or logo.get("url", ""),
+                "eventbrite_url": ev.get("url", ""),
+                "capacity_status": ev.get("status", ""),
             })
 
-        page_token = data.get("nextPageToken")
-        if not page_token:
+        pagination = data.get("pagination", {})
+        if pagination.get("has_more_items"):
+            continuation = pagination.get("continuation")
+        else:
             break
 
-    # Newest first
-    episodes.sort(key=lambda e: e["published_at"], reverse=True)
-    return episodes
-
-
-def attach_durations(api_key: str, episodes: list) -> None:
-    """Fetch each video's duration via videos.list and set ep['duration_seconds']."""
-    for batch in chunked(episodes, 50):
-        ids = ",".join(ep["video_id"] for ep in batch)
-        data = api_get("videos", {
-            "part": "contentDetails",
-            "id": ids,
-            "key": api_key,
-        })
-        durations = {
-            item["id"]: parse_duration_seconds(item["contentDetails"]["duration"])
-            for item in data.get("items", [])
-        }
-        for ep in batch:
-            ep["duration_seconds"] = durations.get(ep["video_id"], 0)
-
-
-def filter_out_shorts(episodes: list, min_duration_seconds: int) -> list:
-    kept = []
-    for ep in episodes:
-        if ep.get("duration_seconds", 0) < min_duration_seconds:
-            print(
-                f"Skipping short/clip ({ep['duration_seconds']}s): {ep['title']}",
-                file=sys.stderr,
-            )
-            continue
-        kept.append(ep)
-    return kept
+    events.sort(key=lambda e: e["start_iso"])
+    return events
 
 
 def main():
-    api_key = os.environ.get("YOUTUBE_API_KEY", "").strip()
-    channel_id = os.environ.get("CHANNEL_ID", DEFAULT_CHANNEL_ID).strip()
-    min_duration = int(os.environ.get(
-        "EPISODE_MIN_DURATION_SECONDS", DEFAULT_MIN_DURATION_SECONDS
-    ))
+    token = os.environ.get("EVENTBRITE_TOKEN", "").strip()
+    org_id = os.environ.get("EVENTBRITE_ORG_ID", "").strip()
 
-    if not api_key:
+    if not token or not org_id:
         print(
-            "No YOUTUBE_API_KEY set. Leaving data/episodes.json untouched.\n"
-            "See README.md for how to get a free key.",
+            "No EVENTBRITE_TOKEN / EVENTBRITE_ORG_ID set. Leaving "
+            "data/events.json untouched. See README.md for how to get these.",
             file=sys.stderr,
         )
-        # Don't fail the build if the key isn't configured yet; the site
-        # will just keep showing whatever episodes.json already has
-        # (e.g. the sample data) until a key is added.
         sys.exit(0)
 
-    episodes = fetch_all_episodes(api_key, channel_id)
-    attach_durations(api_key, episodes)
-    episodes = filter_out_shorts(episodes, min_duration)
-
-    # duration_seconds was only needed for filtering, drop it from the
-    # public data file to keep it tidy (not used by the templates).
-    for ep in episodes:
-        ep.pop("duration_seconds", None)
+    try:
+        events = fetch_events(token, org_id)
+    except Exception as exc:
+        # Don't let a bad Eventbrite credential or a transient API problem
+        # take down the whole site build. Episodes should still sync and
+        # the site should still deploy; events.json just stays as it was
+        # until this is fixed. The error above (printed by api_get) still
+        # shows up in the Actions log so it's easy to spot and fix.
+        print(
+            f"Eventbrite sync failed ({exc}). Leaving data/events.json "
+            "untouched and continuing.",
+            file=sys.stderr,
+        )
+        sys.exit(0)
 
     OUT_PATH.parent.mkdir(parents=True, exist_ok=True)
-    OUT_PATH.write_text(json.dumps(episodes, indent=2), encoding="utf-8")
-    print(f"Wrote {len(episodes)} episodes to {OUT_PATH}")
+    OUT_PATH.write_text(json.dumps(events, indent=2), encoding="utf-8")
+    print(f"Wrote {len(events)} event(s) to {OUT_PATH}")
 
 
 if __name__ == "__main__":
