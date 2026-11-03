@@ -157,7 +157,20 @@ def main():
         )
         sys.exit(0)
 
-    events = fetch_events(token, org_id)
+    try:
+        events = fetch_events(token, org_id)
+    except Exception as exc:
+        # Don't let a bad Eventbrite credential or a transient API problem
+        # take down the whole site build. Episodes should still sync and
+        # the site should still deploy; events.json just stays as it was
+        # until this is fixed. The error above (printed by api_get) still
+        # shows up in the Actions log so it's easy to spot and fix.
+        print(
+            f"Eventbrite sync failed ({exc}). Leaving data/events.json "
+            "untouched and continuing.",
+            file=sys.stderr,
+        )
+        sys.exit(0)
 
     OUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     OUT_PATH.write_text(json.dumps(events, indent=2), encoding="utf-8")
