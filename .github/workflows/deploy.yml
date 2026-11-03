@@ -1,8 +1,8 @@
-name: Sync episodes & deploy
+name: Sync content & deploy
 
 on:
   schedule:
-    # Runs every 2 hours — new YouTube episodes will appear on the live
+    # Runs every 2 hours. New YouTube episodes will appear on the live
     # site within this window, with zero manual work.
     - cron: "0 */2 * * *"
   push:
@@ -38,15 +38,21 @@ jobs:
           YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
         run: python3 scripts/fetch_episodes.py
 
+      - name: Pull latest events from Eventbrite
+        env:
+          EVENTBRITE_TOKEN: ${{ secrets.EVENTBRITE_TOKEN }}
+          EVENTBRITE_ORG_ID: ${{ secrets.EVENTBRITE_ORG_ID }}
+        run: python3 scripts/fetch_events.py
+
       - name: Build site
         run: python3 build.py
 
-      - name: Commit refreshed episode data (if changed)
+      - name: Commit refreshed content data (if changed)
         run: |
           git config user.name "udi-site-bot"
           git config user.email "actions@users.noreply.github.com"
-          git add data/episodes.json
-          git diff --cached --quiet || git commit -m "Auto-sync: refresh episodes.json"
+          git add data/episodes.json data/events.json
+          git diff --cached --quiet || git commit -m "Auto-sync: refresh episodes.json / events.json"
           git push || true
 
       - name: Upload Pages artifact
