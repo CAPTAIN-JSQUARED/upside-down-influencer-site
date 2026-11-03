@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% import "_macros.html" as m %}
+{% set active = 'home' %}
+{% block title %}The Upside Down Influencer — Holy Over Popular{% endblock %}
+
+{% block content %}
+<section class="hero">
+  <div class="wrap hero-inner">
+    <p class="eyebrow">The Upside Down Influencer Podcast</p>
+    <h1>Your social media should look different<br>as a Christ follower.</h1>
+    <p class="hero-sub">You are an influencer — for the upside down kingdom. Join Jessica Johnson for honest, convicting, hope-filled conversations about faith in a scrolling world.</p>
+    <div class="hero-actions">
+      <a class="btn btn-primary" href="/episodes.html">Watch the latest episode</a>
+      <a class="btn btn-ghost" href="#subscribe">Get new episodes by email</a>
+    </div>
+  </div>
+</section>
+
+<section class="section latest-episodes">
+  <div class="wrap">
+    <div class="section-heading">
+      <h2>Latest episodes</h2>
+      <a class="link-quiet" href="/episodes.html">See all episodes →</a>
+    </div>
+    <div class="episode-grid">
+      {% for ep in episodes[:3] %}
+        {{ m.episode_card(ep) }}
+      {% else %}
+        <p class="empty-state">New episodes will appear here automatically as soon as they're posted to YouTube.</p>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="section mission">
+  <div class="wrap mission-inner">
+    <h2>Holy over popular.</h2>
+    <p>Everyone has influence — whether you've got twelve followers or twelve thousand. This show is for the Christian who wants their feed, their scroll, and their story to actually reflect who they follow. No algorithm-chasing. No performance. Just honest conversation about what it looks like to be set apart online.</p>
+    <a class="link-quiet" href="/about.html">More about the show →</a>
+  </div>
+</section>
+
+<section class="section listen-on">
+  <div class="wrap">
+    <h2>Listen wherever you are</h2>
+    <div class="platform-badges">
+      <a href="https://podcasts.apple.com/us/podcast/upside-down-influencer/id1795576464" target="_blank" rel="noopener">Apple Podcasts</a>
+      <a href="https://open.spotify.com/show/74ViTt9FNmNFWTRliEt3vE" target="_blank" rel="noopener">Spotify</a>
+      <a href="https://www.youtube.com/@upsidedowninfluencer" target="_blank" rel="noopener">YouTube</a>
+      <a href="https://www.iheart.com/podcast/1323-upside-down-influencer-266138472/" target="_blank" rel="noopener">iHeartRadio</a>
+    </div>
+  </div>
+</section>
+
+<section class="section subscribe" id="subscribe">
+  <div class="wrap subscribe-inner">
+    <h2>Never miss an episode</h2>
+    <p>Get a short note from Jessica every time a new episode drops — plus the occasional extra thought that doesn't make it into the show.</p>
+    <form class="subscribe-form" action="#" method="post">
+      <label class="sr-only" for="email">Email address</label>
+      <input type="email" id="email" name="email" placeholder="you@example.com" required>
+      <button type="submit" class="btn btn-primary">Subscribe</button>
+    </form>
+    <p class="form-note">Replace this form's action with your email provider's signup endpoint (Mailchimp, ConvertKit, Buttondown, etc.) — see README.md.</p>
+  </div>
+</section>
+{% endblock %}

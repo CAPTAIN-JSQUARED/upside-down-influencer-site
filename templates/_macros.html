@@ -1,0 +1,24 @@
+{% macro episode_card(ep, featured=False) %}
+<article class="episode-card {% if featured %}episode-card--featured{% endif %}">
+  <button class="episode-thumb" type="button"
+          data-video-id="{{ ep.video_id }}"
+          data-embed-url="{{ ep.embed_url }}"
+          aria-label="Play {{ ep.title }}">
+    <img src="{{ ep.thumbnail }}" alt="" loading="lazy" width="640" height="360">
+    <span class="play-badge" aria-hidden="true">▶</span>
+  </button>
+  <div class="episode-body">
+    <time class="episode-date" datetime="{{ ep.published_at }}">{{ ep.published_display }}</time>
+    <h3 class="episode-title">{{ ep.title }}</h3>
+    <p class="episode-desc">{{ ep.description_short }}</p>
+    <div class="episode-links">
+      <button class="btn btn-small" type="button"
+              data-video-id="{{ ep.video_id }}"
+              data-embed-url="{{ ep.embed_url }}">Watch episode</button>
+      {% if ep.url and ep.url != '#' %}
+      <a class="link-quiet" href="{{ ep.url }}" target="_blank" rel="noopener">Open on YouTube ↗</a>
+      {% endif %}
+    </div>
+  </div>
+</article>
+{% endmacro %}

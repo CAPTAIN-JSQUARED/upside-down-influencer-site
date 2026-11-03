@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}Upside Down Influencer{% endblock %}</title>
+<meta name="description" content="{% block meta_description %}The Upside Down Influencer — a podcast for Christians who want their social media to look different. Holy over popular.{% endblock %}">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a class="brand" href="/">
+      <span class="brand-mark" aria-hidden="true">⤒</span>
+      <span class="brand-text">Upside Down<br>Influencer</span>
+    </a>
+    <button class="nav-toggle" aria-expanded="false" aria-controls="primary-nav" id="navToggle">
+      <span></span><span></span><span></span>
+      <span class="sr-only">Menu</span>
+    </button>
+    <nav class="primary-nav" id="primary-nav">
+      <a href="/index.html" {% if active == 'home' %}class="active"{% endif %}>Home</a>
+      <a href="/episodes.html" {% if active == 'episodes' %}class="active"{% endif %}>Episodes</a>
+      <a href="/about.html" {% if active == 'about' %}class="active"{% endif %}>About</a>
+      <a href="/resources.html" {% if active == 'resources' %}class="active"{% endif %}>Resources</a>
+      <a href="/contact.html" {% if active == 'contact' %}class="active"{% endif %}>Contact</a>
+      <a href="/index.html#subscribe" class="nav-cta">Subscribe</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+{% block content %}{% endblock %}
+</main>
+
+<footer class="site-footer">
+  <div class="wrap footer-inner">
+    <div class="footer-brand">
+      <p class="footer-tagline">Holy over popular.</p>
+      <p class="footer-sub">The Upside Down Influencer — helping Christians show up differently online.</p>
+    </div>
+
+    <div class="footer-col">
+      <h3>Listen</h3>
+      <ul class="platform-list">
+        <li><a href="https://podcasts.apple.com/us/podcast/upside-down-influencer/id1795576464" target="_blank" rel="noopener">Apple Podcasts</a></li>
+        <li><a href="https://open.spotify.com/show/74ViTt9FNmNFWTRliEt3vE" target="_blank" rel="noopener">Spotify</a></li>
+        <li><a href="https://www.youtube.com/@upsidedowninfluencer" target="_blank" rel="noopener">YouTube</a></li>
+        <li><a href="https://www.iheart.com/podcast/1323-upside-down-influencer-266138472/" target="_blank" rel="noopener">iHeartRadio</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-col">
+      <h3>Connect</h3>
+      <ul class="platform-list">
+        <li><a href="#" target="_blank" rel="noopener">Instagram</a></li>
+        <li><a href="#" target="_blank" rel="noopener">TikTok</a></li>
+        <li><a href="#" target="_blank" rel="noopener">Facebook</a></li>
+        <li><a href="/contact.html">Email</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="wrap footer-bottom">
+    <p>&copy; <span id="year"></span> The Upside Down Influencer. All rights reserved.</p>
+  </div>
+</footer>
+
+<div class="video-modal" id="videoModal" hidden>
+  <div class="video-modal-backdrop" data-close></div>
+  <div class="video-modal-box">
+    <button class="video-modal-close" data-close aria-label="Close video">&times;</button>
+    <div class="video-modal-frame" id="videoModalFrame"></div>
+  </div>
+</div>
+
+<script src="/static/js/main.js"></script>
+</body>
+</html>

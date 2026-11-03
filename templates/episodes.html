@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% import "_macros.html" as m %}
+{% set active = 'episodes' %}
+{% block title %}Episodes — The Upside Down Influencer{% endblock %}
+
+{% block content %}
+<section class="page-header">
+  <div class="wrap">
+    <p class="eyebrow">Watch &amp; listen</p>
+    <h1>All episodes</h1>
+    <p class="hero-sub">Every episode, pulled straight from the show's YouTube channel — new ones show up here automatically, no manual updates needed.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="episode-grid episode-grid--full">
+      {% for ep in episodes %}
+        {{ m.episode_card(ep) }}
+      {% else %}
+        <p class="empty-state">No episodes synced yet. Once a YouTube API key is configured, episodes will appear here automatically.</p>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}

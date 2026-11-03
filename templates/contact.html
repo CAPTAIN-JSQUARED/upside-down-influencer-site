@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% set active = 'contact' %}
+{% block title %}Contact — The Upside Down Influencer{% endblock %}
+
+{% block content %}
+<section class="page-header">
+  <div class="wrap">
+    <p class="eyebrow">Get in touch</p>
+    <h1>Contact</h1>
+    <p class="hero-sub">Questions, guest pitches, speaking requests, or partnership &amp; sponsorship inquiries — all welcome.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap contact-wrap">
+    <form class="contact-form" action="#" method="post">
+      <label for="name">Name</label>
+      <input type="text" id="name" name="name" required>
+
+      <label for="contact-email">Email</label>
+      <input type="email" id="contact-email" name="email" required>
+
+      <label for="reason">What's this about?</label>
+      <select id="reason" name="reason">
+        <option>General question</option>
+        <option>Guest pitch</option>
+        <option>Sponsorship / partnership</option>
+        <option>Speaking request</option>
+        <option>Other</option>
+      </select>
+
+      <label for="message">Message</label>
+      <textarea id="message" name="message" rows="6" required></textarea>
+
+      <button type="submit" class="btn btn-primary">Send message</button>
+    </form>
+    <p class="form-note">This form needs a submission handler (Formspree, Netlify Forms, or similar) — see README.md for the quick way to wire it up.</p>
+  </div>
+</section>
+{% endblock %}

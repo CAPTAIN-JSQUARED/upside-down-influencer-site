@@ -1,0 +1,29 @@
+[
+  {
+    "video_id": "SAMPLE_003",
+    "title": "[SAMPLE] Ep. 003 — Why Your Feed Should Look Different",
+    "description": "This is placeholder sample data so you can preview the site's layout before the live YouTube sync is connected. Once a YouTube Data API key is added (see README.md), this will be replaced automatically by Jessica's real, latest episodes — title, description, and thumbnail pulled straight from the channel.",
+    "published_at": "2026-10-28T13:00:00Z",
+    "thumbnail": "/static/img/sample/placeholder-1.svg",
+    "url": "#",
+    "embed_url": ""
+  },
+  {
+    "video_id": "SAMPLE_002",
+    "title": "[SAMPLE] Ep. 002 — Tami Taunton on Social Media & Discipleship",
+    "description": "Placeholder description text. Real descriptions will be pulled automatically from each video's YouTube description once the sync is live.",
+    "published_at": "2026-10-14T13:00:00Z",
+    "thumbnail": "/static/img/sample/placeholder-2.svg",
+    "url": "#",
+    "embed_url": ""
+  },
+  {
+    "video_id": "SAMPLE_001",
+    "title": "[SAMPLE] Ep. 001 — Camille Murphy on the Self-Aware Scroller",
+    "description": "Placeholder description text. Real descriptions will be pulled automatically from each video's YouTube description once the sync is live.",
+    "published_at": "2026-09-30T13:00:00Z",
+    "thumbnail": "/static/img/sample/placeholder-3.svg",
+    "url": "#",
+    "embed_url": ""
+  }
+]
