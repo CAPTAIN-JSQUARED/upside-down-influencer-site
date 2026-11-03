@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>{% block title %}Upside Down Influencer{% endblock %}</title>
-<meta name="description" content="{% block meta_description %}The Upside Down Influencer — a podcast for Christians who want their social media to look different. Set apart over popular.{% endblock %}">
+<meta name="description" content="{% block meta_description %}The Upside Down Influencer: a podcast for Christians who want their social media to look different. Set apart over popular.{% endblock %}">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -26,6 +26,7 @@
     <nav class="primary-nav" id="primary-nav">
       <a href="/index.html" {% if active == 'home' %}class="active"{% endif %}>Home</a>
       <a href="/episodes.html" {% if active == 'episodes' %}class="active"{% endif %}>Episodes</a>
+      <a href="/events.html" {% if active == 'events' %}class="active"{% endif %}>Events</a>
       <a href="/about.html" {% if active == 'about' %}class="active"{% endif %}>About</a>
       <a href="/resources.html" {% if active == 'resources' %}class="active"{% endif %}>Resources</a>
       <a href="/contact.html" {% if active == 'contact' %}class="active"{% endif %}>Contact</a>
@@ -42,7 +43,7 @@
   <div class="wrap footer-inner">
     <div class="footer-brand">
       <p class="footer-tagline">Set Apart over popular.</p>
-      <p class="footer-sub">The Upside Down Influencer — helping Christians show up differently online.</p>
+      <p class="footer-sub">The Upside Down Influencer, helping Christians show up differently online.</p>
     </div>
 
     <div class="footer-col">

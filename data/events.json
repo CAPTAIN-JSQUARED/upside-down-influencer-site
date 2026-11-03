@@ -1,0 +1,34 @@
+[
+  {
+    "id": "SAMPLE_EVT_1",
+    "slug": "sample-online-workshop",
+    "title": "[SAMPLE] Social Media Discernment Workshop",
+    "summary": "A live, online workshop placeholder. Once Eventbrite is connected, this will be replaced automatically by your real upcoming events.",
+    "description_html": "<p>This is placeholder sample data so you can preview the Events page's layout before Eventbrite is connected. Once <code>EVENTBRITE_TOKEN</code> and <code>EVENTBRITE_ORG_ID</code> are added (see README.md), this will be replaced automatically by your real upcoming events, full description, date, and location included.</p>",
+    "is_online": true,
+    "location_label": "Online",
+    "address": "",
+    "start_iso": "2026-11-20T18:00:00Z",
+    "end_iso": "2026-11-20T19:30:00Z",
+    "date_display": "November 20, 2026 · 2:00 PM – 3:30 PM (America/New_York)",
+    "image": "/static/img/sample/placeholder-1.svg",
+    "eventbrite_url": "#",
+    "capacity_status": "live"
+  },
+  {
+    "id": "SAMPLE_EVT_2",
+    "slug": "sample-in-person-gathering",
+    "title": "[SAMPLE] Holy Over Popular Meetup",
+    "summary": "An in-person gathering placeholder, shown here to demonstrate the location/address layout.",
+    "description_html": "<p>Placeholder description text for an in-person event. Real events synced from Eventbrite will show their full description here, exactly as written in Eventbrite's event editor.</p>",
+    "is_online": false,
+    "location_label": "Jacksonville, FL",
+    "address": "123 Example St, Jacksonville, FL 32223",
+    "start_iso": "2026-12-05T23:00:00Z",
+    "end_iso": "2026-12-06T01:00:00Z",
+    "date_display": "December 5, 2026 · 6:00 PM – 8:00 PM (America/New_York)",
+    "image": "/static/img/sample/placeholder-2.svg",
+    "eventbrite_url": "#",
+    "capacity_status": "live"
+  }
+]

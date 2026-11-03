@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% set active = 'events' %}
+{% block title %}Events - The Upside Down Influencer{% endblock %}
+{% block meta_description %}Upcoming online workshops and in-person gatherings from The Upside Down Influencer.{% endblock %}
+
+{% block content %}
+<section class="page-header">
+  <div class="wrap">
+    <p class="eyebrow">Join us</p>
+    <h1>Upcoming events</h1>
+    <p class="hero-sub">Online workshops and in-person gatherings, updated automatically as soon as they're published.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="event-grid">
+      {% for ev in events %}
+      <article class="event-card">
+        {% if ev.image %}
+        <a class="event-thumb" href="/events/{{ ev.slug }}.html">
+          <img src="{{ ev.image }}" alt="" loading="lazy">
+        </a>
+        {% endif %}
+        <div class="event-body">
+          <span class="event-badge {{ 'event-badge--online' if ev.is_online else 'event-badge--inperson' }}">
+            {{ 'Online' if ev.is_online else 'In person' }}
+          </span>
+          <h3 class="event-title"><a href="/events/{{ ev.slug }}.html">{{ ev.title }}</a></h3>
+          <p class="event-meta">{{ ev.date_display }}</p>
+          <p class="event-meta">{{ ev.location_label }}</p>
+          <p class="event-summary">{{ ev.summary_short }}</p>
+          <div class="episode-links">
+            <a class="btn btn-small" href="/events/{{ ev.slug }}.html">View details &amp; sign up</a>
+          </div>
+        </div>
+      </article>
+      {% else %}
+        <p class="empty-state">No upcoming events right now. Check back soon.</p>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}

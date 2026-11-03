@@ -21,9 +21,17 @@ ROOT = Path(__file__).resolve().parent
 TEMPLATES_DIR = ROOT / "templates"
 STATIC_DIR = ROOT / "static"
 DATA_PATH = ROOT / "data" / "episodes.json"
+EVENTS_DATA_PATH = ROOT / "data" / "events.json"
 DIST_DIR = ROOT / "dist"
 
-PAGES = ["index.html", "episodes.html", "about.html", "resources.html", "contact.html"]
+PAGES = ["index.html", "episodes.html", "about.html", "resources.html", "contact.html", "events.html"]
+
+
+def shorten(text, limit=160):
+    text = re.sub(r"\s+", " ", text or "").strip()
+    if len(text) > limit:
+        text = text[:limit].rsplit(" ", 1)[0] + "…"
+    return text
 
 
 def load_episodes():
@@ -39,10 +47,16 @@ def load_episodes():
             ep["published_display"] = ""
 
         # Short description (first ~160 chars, cut at a word boundary)
-        desc = re.sub(r"\s+", " ", ep.get("description", "")).strip()
-        if len(desc) > 160:
-            desc = desc[:160].rsplit(" ", 1)[0] + "…"
-        ep["description_short"] = desc
+        ep["description_short"] = shorten(ep.get("description", ""))
+    return raw
+
+
+def load_events():
+    if not EVENTS_DATA_PATH.exists():
+        return []
+    raw = json.loads(EVENTS_DATA_PATH.read_text(encoding="utf-8"))
+    for ev in raw:
+        ev["summary_short"] = shorten(ev.get("summary", ""))
     return raw
 
 
@@ -53,12 +67,23 @@ def build():
 
     env = Environment(loader=FileSystemLoader(str(TEMPLATES_DIR)), autoescape=True)
     episodes = load_episodes()
+    events = load_events()
 
     for page in PAGES:
         template = env.get_template(page)
-        html = template.render(episodes=episodes)
+        html = template.render(episodes=episodes, events=events)
         (DIST_DIR / page).write_text(html, encoding="utf-8")
         print(f"built {page}")
+
+    # One detail page per event, e.g. dist/events/fall-workshop.html
+    if events:
+        events_dir = DIST_DIR / "events"
+        events_dir.mkdir(parents=True, exist_ok=True)
+        detail_template = env.get_template("event_detail.html")
+        for ev in events:
+            html = detail_template.render(ev=ev, episodes=episodes, events=events)
+            (events_dir / f"{ev['slug']}.html").write_text(html, encoding="utf-8")
+            print(f"built events/{ev['slug']}.html")
 
     # Also write index at root is already index.html; add a copy strategy
     shutil.copytree(STATIC_DIR, DIST_DIR / "static")
@@ -70,7 +95,7 @@ def build():
         shutil.copy(cname_src, DIST_DIR / "CNAME")
         print(f"included CNAME -> {cname_src.read_text().strip()}")
 
-    print(f"\nDone. {len(episodes)} episode(s) in data/episodes.json.")
+    print(f"\nDone. {len(episodes)} episode(s), {len(events)} event(s).")
     print(f"Output: {DIST_DIR}")
 
 

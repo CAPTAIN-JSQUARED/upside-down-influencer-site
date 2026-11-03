@@ -7,7 +7,7 @@ duration, so only real episodes show up on the site.
 
 Source of truth: YouTube Data API v3 (playlistItems on the channel's "uploads"
 playlist, then videos.list for each video's duration). This needs a free API
-key — see README.md for how to get one.
+key. See README.md for how to get one.
 
 Usage:
     YOUTUBE_API_KEY=xxxxx python3 scripts/fetch_episodes.py
@@ -18,7 +18,7 @@ Env vars:
     EPISODE_MIN_DURATION_SECONDS
                                optional. Videos shorter than this are treated
                                as Shorts/clips and excluded. Defaults to 180
-                               (3 minutes — YouTube's current max Shorts
+                               (3 minutes, YouTube's current max Shorts
                                length, so this safely excludes every Short
                                without risking cutting off a real episode).
 """
@@ -173,7 +173,7 @@ def main():
 
     if not api_key:
         print(
-            "No YOUTUBE_API_KEY set — leaving data/episodes.json untouched.\n"
+            "No YOUTUBE_API_KEY set. Leaving data/episodes.json untouched.\n"
             "See README.md for how to get a free key.",
             file=sys.stderr,
         )
@@ -186,7 +186,7 @@ def main():
     attach_durations(api_key, episodes)
     episodes = filter_out_shorts(episodes, min_duration)
 
-    # duration_seconds was only needed for filtering — drop it from the
+    # duration_seconds was only needed for filtering, drop it from the
     # public data file to keep it tidy (not used by the templates).
     for ep in episodes:
         ep.pop("duration_seconds", None)

@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% set active = 'events' %}
+{% block title %}{{ ev.title }} - The Upside Down Influencer{% endblock %}
+{% block meta_description %}{{ ev.summary_short }}{% endblock %}
+
+{% block content %}
+<section class="page-header">
+  <div class="wrap">
+    <p class="eyebrow"><a class="link-quiet" href="/events.html">&larr; All events</a></p>
+    <span class="event-badge {{ 'event-badge--online' if ev.is_online else 'event-badge--inperson' }}">
+      {{ 'Online' if ev.is_online else 'In person' }}
+    </span>
+    <h1>{{ ev.title }}</h1>
+    <p class="hero-sub">{{ ev.date_display }}</p>
+    <p class="hero-sub">{{ ev.address if ev.address else ev.location_label }}</p>
+  </div>
+</section>
+
+<section class="section event-detail-grid">
+  <div class="wrap event-detail-inner">
+    <div class="event-description">
+      {% if ev.image %}
+      <img class="event-detail-image" src="{{ ev.image }}" alt="">
+      {% endif %}
+      {{ ev.description_html | safe }}
+    </div>
+
+    <div class="event-signup-panel">
+      <h2>Reserve your spot</h2>
+      <p class="form-note">Sign up below. You'll get a confirmation and reminder from Eventbrite.</p>
+      <div id="eventbrite-widget-container-{{ ev.id }}"></div>
+      <a class="link-quiet" href="{{ ev.eventbrite_url }}" target="_blank" rel="noopener">Having trouble? Open on Eventbrite &#8599;</a>
+    </div>
+  </div>
+</section>
+
+<script src="https://www.eventbrite.com/static/widgets/eb_widgets.js"></script>
+<script type="text/javascript">
+  window.EBWidgets.createWidget({
+    widgetType: 'checkout',
+    eventId: '{{ ev.id }}',
+    iframeContainerId: 'eventbrite-widget-container-{{ ev.id }}',
+    iframeContainerHeight: 425
+  });
+</script>
+{% endblock %}

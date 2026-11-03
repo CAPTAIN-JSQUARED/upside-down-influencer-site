@@ -1,4 +1,4 @@
-/* Upside Down Influencer — base styles
+/* Upside Down Influencer: base styles
    Palette: ink navy + warm cream + amber accent. Swap variables below to
    re-skin the whole site. */
 
@@ -11,10 +11,10 @@
   --amber-dark: #b5822f;
   --text-on-ink: #f6f1e7;
   --text-on-cream: #1c1f26;
-  --muted: #6b7280;
+  --muted: #4b5260;
   --radius: 14px;
   --max-width: 1140px;
- --font-display: "League Spartan", "Inter", sans-serif;
+  --font-display: "League Spartan", "Inter", sans-serif;
   --font-body: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
@@ -141,7 +141,9 @@ a:hover { color: var(--amber-dark); }
 .hero { background: var(--ink); color: var(--text-on-ink); padding: 96px 0 80px; }
 .hero-inner { max-width: 780px; }
 .hero h1 { color: var(--cream); }
-.hero-sub { font-size: 1.1rem; color: #cfd3dc; max-width: 620px; }
+.hero-sub { font-size: 1.1rem; color: var(--muted); max-width: 620px; }
+/* The dark homepage banner needs a light color instead of the default dark one */
+.hero .hero-sub { color: #cfd3dc; }
 .hero-actions { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 1.5em; }
 .hero .btn-ghost { border-color: var(--cream); color: var(--cream); }
 .hero .btn-primary { background: var(--amber); color: var(--ink); }
@@ -243,6 +245,48 @@ a:hover { color: var(--amber-dark); }
 .platform-list a:hover { color: var(--amber); }
 .footer-bottom { border-top: 1px solid rgba(255,255,255,0.1); padding: 18px 0; font-size: 0.8rem; color: #8b909b; }
 @media (max-width: 700px) { .footer-inner { grid-template-columns: 1fr; } }
+
+/* Events */
+.event-grid {
+  display: grid; gap: 28px;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+.event-card {
+  background: #fff; border-radius: var(--radius); overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  display: flex; flex-direction: column;
+}
+.event-thumb { display: block; aspect-ratio: 16/9; overflow: hidden; }
+.event-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.event-body { padding: 18px 20px 22px; display: flex; flex-direction: column; gap: 6px; flex: 1; }
+.event-badge {
+  display: inline-block; align-self: flex-start;
+  font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;
+  padding: 0.3em 0.8em; border-radius: 999px; margin-bottom: 4px;
+}
+.event-badge--online { background: var(--cream-dim); color: var(--ink); }
+.event-badge--inperson { background: var(--ink); color: var(--amber); }
+.event-title { font-size: 1.15rem; margin: 0; }
+.event-title a { color: inherit; }
+.event-meta { font-size: 0.85rem; color: var(--muted); margin: 0; }
+.event-summary { color: var(--muted); font-size: 0.92rem; flex: 1; margin-top: 4px; }
+
+.event-detail-grid .wrap { }
+.event-detail-inner {
+  display: grid; grid-template-columns: 1.6fr 1fr; gap: 48px; align-items: start;
+}
+.event-description { font-size: 1rem; line-height: 1.7; }
+.event-description :is(h1, h2, h3) { font-family: var(--font-display); margin-top: 1.2em; }
+.event-detail-image { width: 100%; border-radius: var(--radius); margin-bottom: 1.5em; aspect-ratio: 16/9; object-fit: cover; }
+.event-signup-panel {
+  background: #fff; border-radius: var(--radius); padding: 24px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06); position: sticky; top: 90px;
+}
+.event-signup-panel h2 { font-size: 1.2rem; }
+@media (max-width: 800px) {
+  .event-detail-inner { grid-template-columns: 1fr; }
+  .event-signup-panel { position: static; }
+}
 
 /* Video modal */
 .video-modal { position: fixed; inset: 0; z-index: 300; display: flex; align-items: center; justify-content: center; padding: 20px; }
