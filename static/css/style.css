@@ -104,12 +104,12 @@ a:hover { color: var(--amber-dark); }
   font-family: var(--font-display); font-weight: 600; font-size: 1.05rem;
   line-height: 1.1;
 }
-.brand-mark {
-  display: inline-flex; align-items: center; justify-content: center;
-  width: 34px; height: 34px; border-radius: 50%;
-  background: var(--ink); color: var(--amber);
-  transform: rotate(180deg);
-  font-size: 1.1rem;
+.brand-logo {
+  display: block;
+  height: 40px;
+  width: auto;
+  max-width: 220px;
+  object-fit: contain;
 }
 .primary-nav { display: flex; align-items: center; gap: 28px; }
 .primary-nav a { font-weight: 600; font-size: 0.95rem; color: var(--text-on-cream); }
